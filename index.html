@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Webサイト稼働状況ダッシュボード</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    .status-card { padding: 20px; border-radius: 8px; color: white; text-align: center; font-size: 24px; font-weight: bold; }
+    .up { background-color: #2ecc71; }
+    .down { background-color: #e74c3c; }
+    .chart-container { margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+  <h1>サービス稼働状況（過去5時間）</h1>
+  <div id="status-card" class="status-card">読み込み中...</div>
+
+  <div class="chart-container">
+    <canvas id="responseChart"></canvas>
+  </div>
+
+  <script>
+    // GASのウェブアプリURLを貼り付け
+    const GAS_API_URL = "YOUR_GAS_WEB_APP_URL_HERE";
+
+    async function fetchStatus() {
+      try {
+        const response = await fetch(GAS_API_URL);
+        const data = await response.json();
+
+        if (data.length === 0) return;
+
+        // 最新ステータスの表示
+        const latest = data[data.length - 1];
+        const statusCard = document.getElementById("status-card");
+        if (latest.status === "UP") {
+          statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
+          statusCard.className = "status-card up";
+        } else {
+          statusCard.textContent = "障害発生中 (DOWN)";
+          statusCard.className = "status-card down";
+        }
+
+        // グラフ描画データ整形
+        const labels = data.map(item => new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+        const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
+
+        // Chart.js 描画
+        const ctx = document.getElementById('responseChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '応答時間 (ms)',
+              data: responseTimes,
+              borderColor: '#3498db',
+              backgroundColor: 'rgba(52, 152, 219, 0.2)',
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: {
+            scales: {
+              y: { beginAtZero: true, title: { display: true, text: 'ms' } }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("データの取得に失敗しました", error);
+      }
+    }
+
+    fetchStatus();
+  </script>
+</body>
+</html>
