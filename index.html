@@ -26,55 +26,74 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwLxeHFucH1WruHQbK3225QlYKaZnE2oy5cGux6Wy2FGEza3cnewJ1hyMa8ZsRBc_p_/exec";
 
     async function fetchStatus() {
-      try {
-        const response = await fetch(GAS_API_URL);
-        const data = await response.json();
+  try {
+    // キャッシュ回避用のパラメータ(?t=...)を付与してfetch
+    const response = await fetch(GAS_API_URL + "?t=" + new Date().getTime());
+    const data = await response.json();
 
-        if (data.length === 0) return;
+    console.log("取得したデータ:", data); // デバッグ用ログ
 
-        // 最新ステータスの表示
-        const latest = data[data.length - 1];
-        const statusCard = document.getElementById("status-card");
-        if (latest.status === "UP") {
-          statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
-          statusCard.className = "status-card up";
-        } else {
-          statusCard.textContent = "障害発生中 (DOWN)";
-          statusCard.className = "status-card down";
-        }
-
-        // グラフ描画データ整形
-        const labels = data.map(item => new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
-        const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
-
-        // Chart.js 描画
-        const ctx = document.getElementById('responseChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: '応答時間 (ms)',
-              data: responseTimes,
-              borderColor: '#3498db',
-              backgroundColor: 'rgba(52, 152, 219, 0.2)',
-              fill: true,
-              tension: 0.1
-            }]
-          },
-          options: {
-            scales: {
-              y: { beginAtZero: true, title: { display: true, text: 'ms' } }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error("データの取得に失敗しました", error);
-      }
+    if (!data || data.length === 0) {
+      document.getElementById("status-card").textContent = "データがまだありません";
+      return;
     }
 
-    fetchStatus();
+    // 最新ステータスの表示
+    const latest = data[data.length - 1];
+    const statusCard = document.getElementById("status-card");
+    
+    if (latest.status === "UP") {
+      statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
+      statusCard.className = "status-card up";
+    } else {
+      statusCard.textContent = "障害発生中 (DOWN)";
+      statusCard.className = "status-card down";
+    }
+
+    // グラフ用データ整形（安全な日付パース）
+    const labels = data.map(item => {
+      const d = new Date(item.timestamp);
+      return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    });
+    
+    const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
+
+    // Chart.js 描画
+    const ctx = document.getElementById('responseChart').getContext('2d');
+    
+    // 既存のグラフがあれば破棄して再描画
+    if (window.myChart) {
+      window.myChart.destroy();
+    }
+
+    window.myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '応答時間 (ms)',
+          data: responseTimes,
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52, 152, 219, 0.2)',
+          fill: true,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'ms' } }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("データの取得に失敗しました", error);
+    document.getElementById("status-card").textContent = "データ読み込みエラー";
+  }
+}
+
+fetchStatus();
   </script>
 </body>
 </html>
