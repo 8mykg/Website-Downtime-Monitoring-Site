@@ -1,99 +1,280 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Webサイト稼働状況ダッシュボード</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
-    .status-card { padding: 20px; border-radius: 8px; color: white; text-align: center; font-size: 24px; font-weight: bold; }
-    .up { background-color: #2ecc71; }
-    .down { background-color: #e74c3c; }
-    .chart-container { margin-top: 40px; }
+    /* ==========================================
+       1. デザイン変数（テーマ切り替え用）
+       ========================================== */
+    :root {
+      /* ライトモードの色定義 */
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --sub-text: #666666;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --border-color: #e2e8f0;
+
+      /* アニメーションの共通設定 */
+      --transition-speed: 0.4s;
+    }
+
+    /* ダークモードの色定義 */
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --sub-text: #94a3b8;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      --border-color: #334155;
+    }
+
+    /* ==========================================
+       2. 基本スタイル & 全体のアニメーション設定
+       ========================================== */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      /* 背景色や文字色が切り替わるときのなめらかなアニメーション */
+      transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    /* ==========================================
+       3. ダークモード切り替えボタン（デザイン & アニメーション）
+       ========================================== */
+    .theme-toggle-btn {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 10px 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* ボタンの滑らかな状態変化 */
+      transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ホバー時のふわっと浮き上がるアニメーション */
+    .theme-toggle-btn:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* クリックした瞬間の凹むフィードバック */
+    .theme-toggle-btn:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    /* ==========================================
+       4. ステータスカード & グラフカード
+       ========================================== */
+    .status-card {
+      padding: 24px;
+      border-radius: 16px;
+      color: white;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+      transition: transform var(--transition-speed) ease, background-color var(--transition-speed) ease;
+    }
+
+    .status-card.up {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .status-card.down {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .chart-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+    }
   </style>
 </head>
+
 <body>
 
-  <h1>サービス稼働状況（過去5時間）</h1>
+  <div class="header">
+    <h1>サービス稼働状況（過去5時間）</h1>
+    <!-- テーマ切り替えボタン -->
+    <button class="theme-toggle-btn" id="themeToggle">
+      <span id="themeIcon">🌙</span>
+      <span id="themeText">ダークモード</span>
+    </button>
+  </div>
+
   <div id="status-card" class="status-card">読み込み中...</div>
 
-  <div class="chart-container">
+  <div class="chart-card">
     <canvas id="responseChart"></canvas>
   </div>
 
   <script>
-    // GASのウェブアプリURLを貼り付け
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwLxeHFucH1WruHQbK3225QlYKaZnE2oy5cGux6Wy2FGEza3cnewJ1hyMa8ZsRBc_p_/exec";
+    const GAS_API_URL = "YOUR_GAS_WEB_APP_URL_HERE"; // ご自身の/exec URL
 
-    async function fetchStatus() {
-  try {
-    // キャッシュ回避用のパラメータ(?t=...)を付与してfetch
-    const response = await fetch(GAS_API_URL + "?t=" + new Date().getTime());
-    const data = await response.json();
+    // ==========================================
+    // ダークモード切替 & アニメーション処理
+    // ==========================================
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
 
-    console.log("取得したデータ:", data); // デバッグ用ログ
+    // 1. ローカルストレージまたはOSの設定から初期テーマを取得
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    if (!data || data.length === 0) {
-      document.getElementById("status-card").textContent = "データがまだありません";
-      return;
-    }
-
-    // 最新ステータスの表示
-    const latest = data[data.length - 1];
-    const statusCard = document.getElementById("status-card");
-    
-    if (latest.status === "UP") {
-      statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
-      statusCard.className = "status-card up";
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setTheme('dark');
     } else {
-      statusCard.textContent = "障害発生中 (DOWN)";
-      statusCard.className = "status-card down";
+      setTheme('light');
     }
 
-    // グラフ用データ整形（安全な日付パース）
-    const labels = data.map(item => {
-      const d = new Date(item.timestamp);
-      return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    // 2. ボタンクリック時の切り替えイベント
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
     });
-    
-    const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
 
-    // Chart.js 描画
-    const ctx = document.getElementById('responseChart').getContext('2d');
-    
-    // 既存のグラフがあれば破棄して再描画
-    if (window.myChart) {
-      window.myChart.destroy();
-    }
-
-    window.myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: '応答時間 (ms)',
-          data: responseTimes,
-          borderColor: '#3498db',
-          backgroundColor: 'rgba(52, 152, 219, 0.2)',
-          fill: true,
-          tension: 0.1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, title: { display: true, text: 'ms' } }
-        }
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = 'ライトモード';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = 'ダークモード';
+        localStorage.setItem('theme', 'light');
       }
-    });
+      // グラフの色味をテーマに合わせて更新
+      if (window.myChart) {
+        updateChartTheme(theme);
+      }
+    }
 
-  } catch (error) {
-    console.error("データの取得に失敗しました", error);
-    document.getElementById("status-card").textContent = "データ読み込みエラー";
-  }
-}
+    // Chart.jsの文字色・線色をテーマに追従させる
+    function updateChartTheme(theme) {
+      const isDark = theme === 'dark';
+      const textColor = isDark ? '#94a3b8' : '#666666';
+      const gridColor = isDark ? '#334155' : '#e2e8f0';
 
-fetchStatus();
+      window.myChart.options.scales.x.ticks.color = textColor;
+      window.myChart.options.scales.y.ticks.color = textColor;
+      window.myChart.options.scales.x.grid.color = gridColor;
+      window.myChart.options.scales.y.grid.color = gridColor;
+      window.myChart.update();
+    }
+
+    // ==========================================
+    // データ取得 & Chart.js 描画処理
+    // ==========================================
+    async function fetchStatus() {
+      try {
+        const response = await fetch(GAS_API_URL + "?t=" + new Date().getTime());
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+          document.getElementById("status-card").textContent = "データがまだありません";
+          return;
+        }
+
+        const latest = data[data.length - 1];
+        const statusCard = document.getElementById("status-card");
+
+        if (latest.status === "UP") {
+          statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
+          statusCard.className = "status-card up";
+        } else {
+          statusCard.textContent = "障害発生中 (DOWN)";
+          statusCard.className = "status-card down";
+        }
+
+        const labels = data.map(item => {
+          const d = new Date(item.timestamp);
+          return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+        });
+
+        const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
+
+        const ctx = document.getElementById('responseChart').getContext('2d');
+        if (window.myChart) window.myChart.destroy();
+
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const isDark = currentTheme === 'dark';
+
+        window.myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '応答時間 (ms)',
+              data: responseTimes,
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              fill: true,
+              tension: 0.3 // 曲線になめらかなカーブをつける
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                ticks: {color: isDark ? '#94a3b8' : '#666666'},
+                grid: {color: isDark ? '#334155' : '#e2e8f0'}
+              },
+              y: {
+                beginAtZero: true,
+                title: {display: true, text: 'ms'},
+                ticks: {color: isDark ? '#94a3b8' : '#666666'},
+                grid: {color: isDark ? '#334155' : '#e2e8f0'}
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("データの取得に失敗しました", error);
+        document.getElementById("status-card").textContent = "データ読み込みエラー";
+      }
+    }
+
+    fetchStatus();
   </script>
 </body>
+
 </html>
