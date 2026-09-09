@@ -110,6 +110,12 @@
       background: linear-gradient(135deg, #10b981, #059669);
     }
 
+    /* 動作不安定（DEGRADED）時のカードスタイル */
+    .status-card.degraded {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      /* 黄色・オレンジのグラデーション */
+    }
+
     .status-card.down {
       background: linear-gradient(135deg, #ef4444, #dc2626);
     }
@@ -128,7 +134,7 @@
 <body>
 
   <div class="header">
-    <h1>サービス稼働状況（過去5時間）</h1>
+    <h1>Kleismic稼働状況（過去5時間）</h1>
     <!-- テーマ切り替えボタン -->
     <button class="theme-toggle-btn" id="themeToggle">
       <span id="themeIcon">🌙</span>
@@ -219,14 +225,17 @@
         if (latest.status === "UP") {
           statusCard.textContent = `稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
+        } else if (latest.status === "DEGRADED") {
+          statusCard.textContent = `⚠️ 動作不安定 / 遅延発生中 (応答時間: ${latest.responseTime}ms)`;
+          statusCard.className = "status-card degraded";
         } else {
-          statusCard.textContent = "障害発生中 (DOWN)";
+          statusCard.textContent = "!! 障害発生中 (DOWN) !!";
           statusCard.className = "status-card down";
         }
 
         const labels = data.map(item => {
           const d = new Date(item.timestamp);
-          return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+          return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         });
 
         const responseTimes = data.map(item => item.status === "UP" ? item.responseTime : 0);
@@ -254,14 +263,14 @@
             responsive: true,
             scales: {
               x: {
-                ticks: {color: isDark ? '#94a3b8' : '#666666'},
-                grid: {color: isDark ? '#334155' : '#e2e8f0'}
+                ticks: { color: isDark ? '#94a3b8' : '#666666' },
+                grid: { color: isDark ? '#334155' : '#e2e8f0' }
               },
               y: {
                 beginAtZero: true,
-                title: {display: true, text: 'ms'},
-                ticks: {color: isDark ? '#94a3b8' : '#666666'},
-                grid: {color: isDark ? '#334155' : '#e2e8f0'}
+                title: { display: true, text: 'ms' },
+                ticks: { color: isDark ? '#94a3b8' : '#666666' },
+                grid: { color: isDark ? '#334155' : '#e2e8f0' }
               }
             }
           }
