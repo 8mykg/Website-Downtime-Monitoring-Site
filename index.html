@@ -134,6 +134,8 @@
       <span style="font-weight: 600; color: var(--sub-text);">応答時間推移</span>
       <!-- 時間範囲切替ボタン -->
       <div class="range-selector">
+        <button class="btn range-btn" data-hours="1">1時間</button>
+        <button class="btn range-btn" data-hours="2">2時間</button>
         <button class="btn range-btn" data-hours="4">4時間</button>
         <button class="btn range-btn active" data-hours="8">8時間</button>
         <button class="btn range-btn" data-hours="12">12時間</button>
@@ -146,7 +148,7 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwLxeHFucH1WruHQbK3225QlYKaZnE2oy5cGux6Wy2FGEza3cnewJ1hyMa8ZsRBc_p_/exec"; // ご自身の/exec URL
 
     let rawData = [];         // 全取得データ保持用
-    let currentHours = 8;     // デフォルト表示時間 (8時間)
+    let currentHours = 2;     // デフォルト表示時間 (8時間)
 
     // ==========================================
     // テーマ切替
@@ -233,8 +235,8 @@
     function updateChart() {
       if (!rawData || rawData.length === 0) return;
 
-      // 5分に1回実行 ＝ 1時間あたり12件
-      const countToSlice = currentHours * 12;
+      // 1分に1回実行 ＝ 1時間あたり60件
+      const countToSlice = currentHours * 60;
       const displayData = rawData.slice(-countToSlice);
 
       const labels = displayData.map(item => {
