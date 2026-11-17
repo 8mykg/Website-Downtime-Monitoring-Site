@@ -391,7 +391,6 @@
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
 
-          // 復帰タイマーが存在する場合のみ残り時間を計算
           if (recoveryStartTime) {
             const elapsedMs = Date.now() - recoveryStartTime;
             const remainingMs = (3 * 60 * 1000) - elapsedMs;
@@ -534,6 +533,8 @@
       const textColor = isDark ? '#94a3b8' : '#64748b';
       const gridColor = isDark ? '#334155' : '#e2e8f0';
       const lineColor = isDark ? '#38bdf8' : '#0ea5e9';
+      const degradedColor = '#f59e0b'; // DEGRADED時の黄色（オレンジ）
+      const downColor = '#ef4444';     // DOWN時の赤色
 
       const ctx = document.getElementById('responseChart').getContext('2d');
       if (window.myChart) window.myChart.destroy();
@@ -556,12 +557,27 @@
             backgroundColor: gradient,
             fill: true,
             tension: 0.25,
+            // ステータスに応じた線の色分け
             segment: {
-              borderColor: ctx => statuses[ctx.p1DataIndex] === 'DOWN' ? '#ef4444' : lineColor
+              borderColor: ctx => {
+                const status = statuses[ctx.p1DataIndex];
+                if (status === 'DOWN') return downColor;
+                if (status === 'DEGRADED') return degradedColor;
+                return lineColor;
+              }
             },
-            pointBackgroundColor: ctx => statuses[ctx.dataIndex] === 'DOWN' ? '#ef4444' : lineColor,
+            // ステータスに応じたドットの色分け
+            pointBackgroundColor: ctx => {
+              const status = statuses[ctx.dataIndex];
+              if (status === 'DOWN') return downColor;
+              if (status === 'DEGRADED') return degradedColor;
+              return lineColor;
+            },
             pointBorderColor: 'transparent',
-            pointRadius: ctx => statuses[ctx.dataIndex] === 'DOWN' ? 5 : normalPointRadius,
+            pointRadius: ctx => {
+              const status = statuses[ctx.dataIndex];
+              return (status === 'DOWN' || status === 'DEGRADED') ? 5 : normalPointRadius;
+            },
             pointHoverRadius: 6
           }]
         },
@@ -575,8 +591,10 @@
               callbacks: {
                 label: function(context) {
                   const idx = context.dataIndex;
-                  if (statuses[idx] === 'DOWN') return ' 状態: DOWN (応答なし)';
-                  return ` 応答時間: ${context.parsed.y} ms (${statuses[idx]})`;
+                  const status = statuses[idx];
+                  if (status === 'DOWN') return ' 状態: DOWN (応答なし)';
+                  if (status === 'DEGRADED') return ` 応答時間: ${context.parsed.y} ms (DEGRADED)`;
+                  return ` 応答時間: ${context.parsed.y} ms (UP)`;
                 }
               }
             }
