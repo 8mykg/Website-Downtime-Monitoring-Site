@@ -106,7 +106,6 @@
     .status-card {
       padding: 24px 20px;
       border-radius: 16px;
-      color: white;
       text-align: center;
       font-size: 20px;
       font-weight: bold;
@@ -237,10 +236,9 @@
     </div>
     <div class="controls">
       <button class="btn" id="refreshBtn" title="最新データを取得">
-        <span>🔄</span><span>更新</span>
+        <span>更新</span>
       </button>
       <button class="btn" id="themeToggle">
-        <span id="themeIcon">🌙</span>
         <span id="themeText">ダークモード</span>
       </button>
     </div>
@@ -284,7 +282,7 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwLxeHFucH1WruHQbK3225QlYKaZnE2oy5cGux6Wy2FGEza3cnewJ1hyMa8ZsRBc_p_/exec";
 
     let rawData = [];
-    let currentHours = 8; // activeボタンと一致させる
+    let currentHours = 8;
 
     // ==========================================
     // テーマ切替
@@ -303,17 +301,14 @@
     });
 
     function setTheme(theme) {
-      const iconEl = document.getElementById('themeIcon');
       const textEl = document.getElementById('themeText');
 
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
-        if (iconEl) iconEl.textContent = '☀️';
         if (textEl) textEl.textContent = 'ライトモード';
         localStorage.setItem('theme', 'dark');
       } else {
         document.documentElement.removeAttribute('data-theme');
-        if (iconEl) iconEl.textContent = '🌙';
         if (textEl) textEl.textContent = 'ダークモード';
         localStorage.setItem('theme', 'light');
       }
@@ -358,13 +353,13 @@
         const statusCard = document.getElementById("status-card");
         
         if (latest.status === "UP") {
-          statusCard.textContent = `✅ 正常稼働中 (応答時間: ${latest.responseTime}ms)`;
+          statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
         } else if (latest.status === "DEGRADED") {
-          statusCard.textContent = `⚠️ 動作不安定 / 遅延発生中 (${latest.responseTime}ms)`;
+          statusCard.textContent = `動作不安定 / 遅延発生中 (${latest.responseTime}ms)`;
           statusCard.className = "status-card degraded";
         } else {
-          statusCard.textContent = "🚨 障害発生中 (DOWN)";
+          statusCard.textContent = "障害発生中 (DOWN)";
           statusCard.className = "status-card down";
         }
 
@@ -383,11 +378,9 @@
     function updateDashboard() {
       if (!rawData || rawData.length === 0) return;
 
-      // 1分に1回実行 ＝ 1時間あたり60件
       const countToSlice = currentHours * 60;
       const displayData = rawData.slice(-countToSlice);
 
-      // サマリー計算
       const totalCount = displayData.length;
       const upCount = displayData.filter(d => d.status !== "DOWN").length;
       const uptimePercent = ((upCount / totalCount) * 100).toFixed(2);
@@ -407,7 +400,6 @@
       document.getElementById('avgResponseStat').textContent = `${avgResponse} ms`;
       document.getElementById('maxResponseStat').textContent = `${maxResponse} ms`;
 
-      // グラフデータ整形
       const labels = displayData.map(item => {
         const d = new Date(item.timestamp);
         return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -424,12 +416,10 @@
       const ctx = document.getElementById('responseChart').getContext('2d');
       if (window.myChart) window.myChart.destroy();
 
-      // 塗りつぶし用グラデーション
       const gradient = ctx.createLinearGradient(0, 0, 0, 300);
       gradient.addColorStop(0, isDark ? 'rgba(56, 189, 248, 0.25)' : 'rgba(14, 165, 233, 0.2)');
       gradient.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
 
-      // データ点が多いときは通常時の点を小さくして見やすくする
       const normalPointRadius = displayData.length > 120 ? 1.5 : 3.5;
 
       window.myChart = new Chart(ctx, {
@@ -505,7 +495,6 @@
       });
     }
 
-    // 初回取得 & 60秒ごとの自動更新
     fetchStatus();
     setInterval(fetchStatus, 60000);
   </script>
