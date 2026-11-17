@@ -27,9 +27,7 @@
       --accent-color: #38bdf8;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
@@ -70,7 +68,6 @@
       align-items: center;
     }
 
-    /* ボタン共通スタイル */
     .btn {
       background-color: var(--card-bg);
       color: var(--text-color);
@@ -92,17 +89,12 @@
       border-color: var(--accent-color);
     }
 
-    .btn:active {
-      transform: translateY(0);
-    }
-
     .btn.active {
       background-color: var(--accent-color);
       color: #ffffff;
       border-color: var(--accent-color);
     }
 
-    /* メインステータスカード */
     .status-card {
       padding: 24px 20px;
       border-radius: 16px;
@@ -117,23 +109,10 @@
       transition: all var(--transition-speed) ease;
     }
 
-    .status-card.up {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: #ffffff;
-      border: none;
-    }
-    .status-card.degraded {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #ffffff;
-      border: none;
-    }
-    .status-card.down {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: #ffffff;
-      border: none;
-    }
+    .status-card.up { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; }
+    .status-card.degraded { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; }
+    .status-card.down { background: linear-gradient(135deg, #ef4444, #dc2626); color: #ffffff; border: none; }
 
-    /* 統計サマリーグリッド */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -148,30 +127,18 @@
       padding: 16px;
       box-shadow: var(--shadow);
       text-align: center;
-      transition: background-color var(--transition-speed) ease;
     }
 
-    .stat-label {
-      font-size: 12px;
-      color: var(--sub-text);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
+    .stat-label { font-size: 12px; color: var(--sub-text); font-weight: 600; margin-bottom: 6px; }
+    .stat-value { font-size: 22px; font-weight: 700; color: var(--text-color); }
 
-    .stat-value {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--text-color);
-    }
-
-    /* グラフカード */
     .chart-card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
       padding: 24px;
       border-radius: 16px;
       box-shadow: var(--shadow);
-      transition: background-color var(--transition-speed) ease;
+      margin-bottom: 24px;
     }
 
     .chart-header {
@@ -183,47 +150,105 @@
       gap: 12px;
     }
 
-    .chart-title {
+    .chart-title { font-weight: 700; font-size: 15px; color: var(--sub-text); }
+    .range-selector { display: flex; gap: 6px; flex-wrap: wrap; }
+    .range-btn { padding: 6px 12px; font-size: 12px; box-shadow: none; }
+    .chart-container { position: relative; height: 320px; width: 100%; }
+
+    /* --- 避難所掲示板スタイル（DOWN時のみ出現） --- */
+    .emergency-board {
+      background-color: var(--card-bg);
+      border: 2px dashed #ef4444;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-top: 24px;
+      display: none; /* デフォルト非表示 */
+    }
+
+    .emergency-board.visible {
+      display: block;
+    }
+
+    .board-title {
+      font-size: 18px;
       font-weight: 700;
-      font-size: 15px;
+      color: #ef4444;
+      margin-bottom: 8px;
+    }
+
+    .board-desc {
+      font-size: 13px;
       color: var(--sub-text);
+      margin-bottom: 16px;
     }
 
-    .range-selector {
+    .board-form {
       display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .range-btn {
-      padding: 6px 12px;
+    .board-input, .board-textarea {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .board-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .board-submit {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .board-submit:hover { opacity: 0.9; }
+
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .message-item {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
       font-size: 12px;
-      box-shadow: none;
+      color: var(--sub-text);
+      margin-bottom: 4px;
     }
 
-    .chart-container {
-      position: relative;
-      height: 320px;
-      width: 100%;
-    }
+    .message-name { font-weight: bold; color: var(--text-color); }
+    .message-body { font-size: 14px; word-break: break-all; white-space: pre-wrap; }
 
     @media (max-width: 600px) {
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .stat-box {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 16px;
-      }
-      .stat-label {
-        margin-bottom: 0;
-      }
-      .chart-container {
-        height: 250px;
-      }
+      .stats-grid { grid-template-columns: 1fr; gap: 10px; }
+      .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+      .stat-label { margin-bottom: 0; }
+      .chart-container { height: 250px; }
     }
   </style>
 </head>
@@ -246,7 +271,6 @@
 
   <div id="status-card" class="status-card">データ読み込み中...</div>
 
-  <!-- 期間内のサマリー指標 -->
   <div class="stats-grid">
     <div class="stat-box">
       <div class="stat-label">期間内 稼働率</div>
@@ -278,19 +302,33 @@
     </div>
   </div>
 
+  <!-- 障害時限定：特設避難所掲示板 -->
+  <div id="emergencyBoard" class="emergency-board">
+    <div class="board-title">緊急避難所掲示板</div>
+    <div class="board-desc">現在kleismicがダウンしているため、一時的なチャットを開設しています。サイトが復旧して数分経つと、この投稿はすべて自動的に消去されます。</div>
+    
+    <div class="board-form">
+      <input type="text" id="posterName" class="board-input" placeholder="お名前 (省略可)" maxlength="20">
+      <textarea id="posterMessage" class="board-textarea" placeholder="いまどんな状況？メッセージを残そう..." maxlength="200"></textarea>
+      <button type="button" id="postBtn" class="board-submit">投稿する</button>
+    </div>
+
+    <div id="messageList" class="message-list">
+      <!-- メッセージがここに動的に入ります -->
+    </div>
+  </div>
+
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwLxeHFucH1WruHQbK3225QlYKaZnE2oy5cGux6Wy2FGEza3cnewJ1hyMa8ZsRBc_p_/exec";
 
     let rawData = [];
+    let boardMessages = [];
     let currentHours = 8;
 
-    // ==========================================
     // テーマ切替
-    // ==========================================
     const themeToggleBtn = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
     if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
       setTheme('dark');
     }
@@ -302,7 +340,6 @@
 
     function setTheme(theme) {
       const textEl = document.getElementById('themeText');
-
       if (theme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
         if (textEl) textEl.textContent = 'ライトモード';
@@ -315,9 +352,6 @@
       if (window.myChart) updateDashboard();
     }
 
-    // ==========================================
-    // 時間表示範囲の切り替え & 手動更新イベント
-    // ==========================================
     document.querySelectorAll('.range-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
@@ -332,13 +366,14 @@
       fetchStatus();
     });
 
-    // ==========================================
-    // データ取得処理
-    // ==========================================
+    // データの取得処理
     async function fetchStatus() {
       try {
         const response = await fetch(GAS_API_URL + "?t=" + Date.now());
-        rawData = await response.json();
+        const json = await response.json();
+        
+        rawData = json.logs || [];
+        boardMessages = json.messages || [];
 
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('lastUpdated').textContent = `最終更新: ${nowStr} (1分ごとに自動更新)`;
@@ -348,22 +383,26 @@
           return;
         }
 
-        // 最新ステータスのカード表示
         const latest = rawData[rawData.length - 1];
         const statusCard = document.getElementById("status-card");
+        const emergencyBoard = document.getElementById("emergencyBoard");
         
         if (latest.status === "UP") {
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
+          emergencyBoard.classList.remove("visible"); // 復旧時は非表示
         } else if (latest.status === "DEGRADED") {
           statusCard.textContent = `動作不安定 / 遅延発生中 (${latest.responseTime}ms)`;
           statusCard.className = "status-card degraded";
+          emergencyBoard.classList.remove("visible"); // 遅延の時はまだ出さない（お好みで変更可）
         } else {
           statusCard.textContent = "障害発生中 (DOWN)";
           statusCard.className = "status-card down";
+          emergencyBoard.classList.add("visible"); // ★ DOWNの時だけ掲示板を出現させる！
         }
 
         updateDashboard();
+        renderBoardMessages();
 
       } catch (error) {
         console.error("データの取得に失敗しました", error);
@@ -372,9 +411,78 @@
       }
     }
 
-    // ==========================================
-    // サマリー計算 & グラフ描画処理
-    // ==========================================
+    // 掲示板メッセージの描画
+    function renderBoardMessages() {
+      const listEl = document.getElementById("messageList");
+      listEl.innerHTML = "";
+
+      if (boardMessages.length === 0) {
+        listEl.innerHTML = '<div style="font-size:13px; color:var(--sub-text); text-align:center; padding: 10px;">まだメッセージはありません。最初の書き込みをしてみよう！</div>';
+        return;
+      }
+
+      // 新しい順に並び替え
+      const sorted = [...boardMessages].reverse();
+      sorted.forEach(item => {
+        const d = new Date(item.timestamp);
+        const timeStr = isNaN(d.getTime()) ? "" : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "message-item";
+        itemDiv.innerHTML = `
+          <div class="message-header">
+            <span class="message-name">${escapeHtml(item.name)}</span>
+            <span>${timeStr}</span>
+          </div>
+          <div class="message-body">${escapeHtml(item.message)}</div>
+        `;
+        listEl.appendChild(itemDiv);
+      });
+    }
+
+    // XSS対策の簡易エスケープ
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+    }
+
+    // 投稿ボタンの処理
+    document.getElementById("postBtn").addEventListener('click', async () => {
+      const nameInput = document.getElementById("posterName");
+      const messageInput = document.getElementById("posterMessage");
+      const postBtn = document.getElementById("postBtn");
+
+      const name = nameInput.value.trim() || "名無し";
+      const message = messageInput.value.trim();
+
+      if (!message) {
+        alert("メッセージを入力してください。");
+        return;
+      }
+
+      postBtn.disabled = true;
+      postBtn.textContent = "送信中...";
+
+      try {
+        await fetch(GAS_API_URL, {
+          method: "POST",
+          body: JSON.stringify({ name, message })
+        });
+
+        messageInput.value = "";
+        await fetchStatus(); // 再取得して反映
+      } catch (e) {
+        console.error(e);
+        alert("投稿に失敗しました。");
+      } finally {
+        postBtn.disabled = false;
+        postBtn.textContent = "投稿する";
+      }
+    });
+
     function updateDashboard() {
       if (!rawData || rawData.length === 0) return;
 
@@ -383,18 +491,14 @@
 
       const totalCount = displayData.length;
       const upCount = displayData.filter(d => d.status !== "DOWN").length;
-      const uptimePercent = ((upCount / totalCount) * 100).toFixed(2);
+      const uptimePercent = totalCount > 0 ? ((upCount / totalCount) * 100).toFixed(2) : 0;
 
       const validResponses = displayData
         .filter(d => d.status !== "DOWN" && typeof d.responseTime === "number")
         .map(d => d.responseTime);
 
-      const avgResponse = validResponses.length > 0
-        ? Math.round(validResponses.reduce((a, b) => a + b, 0) / validResponses.length)
-        : 0;
-      const maxResponse = validResponses.length > 0
-        ? Math.max(...validResponses)
-        : 0;
+      const avgResponse = validResponses.length > 0 ? Math.round(validResponses.reduce((a, b) => a + b, 0) / validResponses.length) : 0;
+      const maxResponse = validResponses.length > 0 ? Math.max(...validResponses) : 0;
 
       document.getElementById('uptimeStat').textContent = `${uptimePercent} %`;
       document.getElementById('avgResponseStat').textContent = `${avgResponse} ms`;
@@ -435,55 +539,32 @@
             fill: true,
             tension: 0.25,
             segment: {
-              borderColor: ctx => {
-                const idx = ctx.p1DataIndex;
-                return statuses[idx] === 'DOWN' ? '#ef4444' : lineColor;
-              }
+              borderColor: ctx => statuses[ctx.p1DataIndex] === 'DOWN' ? '#ef4444' : lineColor
             },
-            pointBackgroundColor: ctx => {
-              const idx = ctx.dataIndex;
-              return statuses[idx] === 'DOWN' ? '#ef4444' : lineColor;
-            },
+            pointBackgroundColor: ctx => statuses[ctx.dataIndex] === 'DOWN' ? '#ef4444' : lineColor,
             pointBorderColor: 'transparent',
-            pointRadius: ctx => {
-              const idx = ctx.dataIndex;
-              return statuses[idx] === 'DOWN' ? 5 : normalPointRadius;
-            },
+            pointRadius: ctx => statuses[ctx.dataIndex] === 'DOWN' ? 5 : normalPointRadius,
             pointHoverRadius: 6
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false,
-          },
+          interaction: { mode: 'index', intersect: false },
           plugins: {
-            legend: {
-              display: false
-            },
+            legend: { display: false },
             tooltip: {
               callbacks: {
                 label: function(context) {
                   const idx = context.dataIndex;
-                  const status = statuses[idx];
-                  if (status === 'DOWN') {
-                    return ' 状態: DOWN (応答なし)';
-                  }
-                  return ` 応答時間: ${context.parsed.y} ms (${status})`;
+                  if (statuses[idx] === 'DOWN') return ' 状態: DOWN (応答なし)';
+                  return ` 応答時間: ${context.parsed.y} ms (${statuses[idx]})`;
                 }
               }
             }
           },
           scales: {
-            x: {
-              ticks: {
-                color: textColor,
-                maxTicksLimit: 10
-              },
-              grid: { display: false }
-            },
+            x: { ticks: { color: textColor, maxTicksLimit: 10 }, grid: { display: false } },
             y: {
               beginAtZero: true,
               title: { display: true, text: 'ms', color: textColor },
