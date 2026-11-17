@@ -372,7 +372,9 @@
         
         rawData = json.logs || [];
         boardMessages = json.messages || [];
-        const recoveryStartTime = json.recoveryStartTime;
+        const isEmergency = json.isEmergency;
+        const emergencyType = json.emergencyType;
+        const remainingMin = json.remainingMin;
 
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('lastUpdated').textContent = `最終更新: ${nowStr} (1分ごとに自動更新)`;
@@ -390,37 +392,30 @@
         if (latest.status === "UP") {
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
-
-          if (recoveryStartTime) {
-            const elapsedMs = Date.now() - recoveryStartTime;
-            const remainingMs = (3 * 60 * 1000) - elapsedMs;
-            const remainingMin = Math.ceil(remainingMs / (1000 * 60));
-
-            if (remainingMin > 0) {
-              emergencyBoard.classList.add("visible");
-              boardDesc.innerHTML = `
-                先ほどの障害は復帰されましたが、あと約 <b>${remainingMin}分間</b> は緊急掲示板が残り、その後は全ての投稿が消去され緊急掲示板は終了します。<br>
-                ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
-              `;
-            } else {
-              emergencyBoard.classList.remove("visible");
-            }
-          } else {
-            emergencyBoard.classList.remove("visible");
-          }
-
         } else if (latest.status === "DEGRADED") {
           statusCard.textContent = `動作不安定 / 遅延発生中 (${latest.responseTime}ms)`;
           statusCard.className = "status-card degraded";
-          emergencyBoard.classList.remove("visible");
         } else {
           statusCard.textContent = "障害発生中 (DOWN)";
           statusCard.className = "status-card down";
+        }
+
+        // GAS側から判定されて返ってきた isEmergency フラグで掲示板の表示を制御
+        if (isEmergency) {
           emergencyBoard.classList.add("visible");
-          boardDesc.innerHTML = `
-            現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
-            ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
-          `;
+          if (emergencyType === "RECOVERY" && remainingMin > 0) {
+            boardDesc.innerHTML = `
+              先ほどの障害は復帰されましたが、あと約 <b>${remainingMin}分間</b> は緊急掲示板が残り、その後は全ての投稿が消去され緊急掲示板は終了します。<br>
+              ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+            `;
+          } else {
+            boardDesc.innerHTML = `
+              現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+              ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+            `;
+          }
+        } else {
+          emergencyBoard.classList.remove("visible");
         }
 
         updateDashboard();
@@ -484,10 +479,15 @@
       postBtn.textContent = "送信中...";
 
       try {
-        await fetch(GAS_API_URL, {
+        const res = await fetch(GAS_API_URL, {
           method: "POST",
           body: JSON.stringify({ name, message })
         });
+        const json = await res.json();
+
+        if (!json.success) {
+          alert("現在は緊急掲示板の受付期間外です。");
+        }
 
         messageInput.value = "";
         await fetchStatus();
@@ -533,8 +533,8 @@
       const textColor = isDark ? '#94a3b8' : '#64748b';
       const gridColor = isDark ? '#334155' : '#e2e8f0';
       const lineColor = isDark ? '#38bdf8' : '#0ea5e9';
-      const degradedColor = '#f59e0b'; // DEGRADED時の黄色（オレンジ）
-      const downColor = '#ef4444';     // DOWN時の赤色
+      const degradedColor = '#f59e0b';
+      const downColor = '#ef4444';
 
       const ctx = document.getElementById('responseChart').getContext('2d');
       if (window.myChart) window.myChart.destroy();
@@ -557,7 +557,6 @@
             backgroundColor: gradient,
             fill: true,
             tension: 0.25,
-            // ステータスに応じた線の色分け
             segment: {
               borderColor: ctx => {
                 const status = statuses[ctx.p1DataIndex];
@@ -566,7 +565,6 @@
                 return lineColor;
               }
             },
-            // ステータスに応じたドットの色分け
             pointBackgroundColor: ctx => {
               const status = statuses[ctx.dataIndex];
               if (status === 'DOWN') return downColor;
