@@ -155,7 +155,6 @@
     .range-btn { padding: 6px 12px; font-size: 12px; box-shadow: none; }
     .chart-container { position: relative; height: 320px; width: 100%; }
 
-    /* --- 緊急避難所掲示板スタイル --- */
     .emergency-board {
       background-color: var(--card-bg);
       border: 2px dashed #ef4444;
@@ -303,7 +302,6 @@
     </div>
   </div>
 
-  <!-- 障害時＆復帰後3分間限定：緊急避難所掲示板 -->
   <div id="emergencyBoard" class="emergency-board">
     <div class="board-title">緊急避難所掲示板</div>
     <div id="boardDesc" class="board-desc">
@@ -317,9 +315,7 @@
       <button type="button" id="postBtn" class="board-submit">投稿する</button>
     </div>
 
-    <div id="messageList" class="message-list">
-      <!-- メッセージがここに動的に入ります -->
-    </div>
+    <div id="messageList" class="message-list"></div>
   </div>
 
   <script>
@@ -329,7 +325,6 @@
     let boardMessages = [];
     let currentHours = 8;
 
-    // テーマ切替
     const themeToggleBtn = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -370,7 +365,6 @@
       fetchStatus();
     });
 
-    // データの取得処理
     async function fetchStatus() {
       try {
         const response = await fetch(GAS_API_URL + "?t=" + Date.now());
@@ -397,7 +391,7 @@
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
 
-          // 復帰後かつ recoveryStartTime がある場合は、3分経つまで表示を継続し残り時間を表示
+          // 復帰タイマーが存在する場合のみ残り時間を計算
           if (recoveryStartTime) {
             const elapsedMs = Date.now() - recoveryStartTime;
             const remainingMs = (3 * 60 * 1000) - elapsedMs;
@@ -440,7 +434,6 @@
       }
     }
 
-    // 掲示板メッセージの描画
     function renderBoardMessages() {
       const listEl = document.getElementById("messageList");
       listEl.innerHTML = "";
@@ -450,8 +443,7 @@
         return;
       }
 
-      const sorted = [...boardMessages].reverse();
-      sorted.forEach(item => {
+      [...boardMessages].reverse().forEach(item => {
         const d = new Date(item.timestamp);
         const timeStr = isNaN(d.getTime()) ? "" : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
@@ -476,7 +468,6 @@
                 .replace(/'/g, '&#039;');
     }
 
-    // 投稿ボタンの処理
     document.getElementById("postBtn").addEventListener('click', async () => {
       const nameInput = document.getElementById("posterName");
       const messageInput = document.getElementById("posterMessage");
