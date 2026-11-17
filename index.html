@@ -155,7 +155,7 @@
     .range-btn { padding: 6px 12px; font-size: 12px; box-shadow: none; }
     .chart-container { position: relative; height: 320px; width: 100%; }
 
-    /* --- 避難所掲示板スタイル（DOWN時のみ出現） --- */
+    /* --- 緊急避難所掲示板スタイル --- */
     .emergency-board {
       background-color: var(--card-bg);
       border: 2px dashed #ef4444;
@@ -163,7 +163,7 @@
       padding: 24px;
       box-shadow: var(--shadow);
       margin-top: 24px;
-      display: none; /* デフォルト非表示 */
+      display: none;
     }
 
     .emergency-board.visible {
@@ -181,6 +181,7 @@
       font-size: 13px;
       color: var(--sub-text);
       margin-bottom: 16px;
+      line-height: 1.5;
     }
 
     .board-form {
@@ -302,10 +303,13 @@
     </div>
   </div>
 
-  <!-- 障害時限定：特設避難所掲示板 -->
+  <!-- 障害時＆復帰後3分間限定：緊急避難所掲示板 -->
   <div id="emergencyBoard" class="emergency-board">
     <div class="board-title">緊急避難所掲示板</div>
-    <div class="board-desc">現在kleismicがダウンしているため、一時的なチャットを開設しています。サイトが復旧して数分経つと、この投稿はすべて自動的に消去されます。</div>
+    <div id="boardDesc" class="board-desc">
+      現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+      ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+    </div>
     
     <div class="board-form">
       <input type="text" id="posterName" class="board-input" placeholder="お名前 (省略可)" maxlength="20">
@@ -374,6 +378,7 @@
         
         rawData = json.logs || [];
         boardMessages = json.messages || [];
+        const recoveryStartTime = json.recoveryStartTime;
 
         const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.getElementById('lastUpdated').textContent = `最終更新: ${nowStr} (1分ごとに自動更新)`;
@@ -386,19 +391,43 @@
         const latest = rawData[rawData.length - 1];
         const statusCard = document.getElementById("status-card");
         const emergencyBoard = document.getElementById("emergencyBoard");
+        const boardDesc = document.getElementById("boardDesc");
         
         if (latest.status === "UP") {
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
-          emergencyBoard.classList.remove("visible"); // 復旧時は非表示
+
+          // 復帰後かつ recoveryStartTime がある場合は、3分経つまで表示を継続し残り時間を表示
+          if (recoveryStartTime) {
+            const elapsedMs = Date.now() - recoveryStartTime;
+            const remainingMs = (3 * 60 * 1000) - elapsedMs;
+            const remainingMin = Math.ceil(remainingMs / (1000 * 60));
+
+            if (remainingMin > 0) {
+              emergencyBoard.classList.add("visible");
+              boardDesc.innerHTML = `
+                先ほどの障害は復帰されましたが、あと約 <b>${remainingMin}分間</b> は緊急掲示板が残り、その後は全ての投稿が消去され緊急掲示板は終了します。<br>
+                ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+              `;
+            } else {
+              emergencyBoard.classList.remove("visible");
+            }
+          } else {
+            emergencyBoard.classList.remove("visible");
+          }
+
         } else if (latest.status === "DEGRADED") {
           statusCard.textContent = `動作不安定 / 遅延発生中 (${latest.responseTime}ms)`;
           statusCard.className = "status-card degraded";
-          emergencyBoard.classList.remove("visible"); // 遅延の時はまだ出さない（お好みで変更可）
+          emergencyBoard.classList.remove("visible");
         } else {
           statusCard.textContent = "障害発生中 (DOWN)";
           statusCard.className = "status-card down";
-          emergencyBoard.classList.add("visible"); // ★ DOWNの時だけ掲示板を出現させる！
+          emergencyBoard.classList.add("visible");
+          boardDesc.innerHTML = `
+            現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+            ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+          `;
         }
 
         updateDashboard();
@@ -421,7 +450,6 @@
         return;
       }
 
-      // 新しい順に並び替え
       const sorted = [...boardMessages].reverse();
       sorted.forEach(item => {
         const d = new Date(item.timestamp);
@@ -440,7 +468,6 @@
       });
     }
 
-    // XSS対策の簡易エスケープ
     function escapeHtml(str) {
       return str.replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
@@ -473,7 +500,7 @@
         });
 
         messageInput.value = "";
-        await fetchStatus(); // 再取得して反映
+        await fetchStatus();
       } catch (e) {
         console.error(e);
         alert("投稿に失敗しました。");
