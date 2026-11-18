@@ -400,15 +400,18 @@
           statusCard.className = "status-card down";
         }
 
-        // GAS側から判定されて返ってきた isEmergency フラグで掲示板の表示を制御
+        // fetchStatus 関数の中の掲示板表示をコントロールしている部分
         if (isEmergency) {
           emergencyBoard.classList.add("visible");
-          if (emergencyType === "RECOVERY" && remainingMin > 0) {
+          
+          // 残り時間がある場合（＝DOWNから3分以内の猶予期間）
+          if (remainingMin > 0) {
             boardDesc.innerHTML = `
-              先ほどの障害は復帰されましたが、あと約 <b>${remainingMin}分間</b> は緊急掲示板が残り、その後は全ての投稿が消去され緊急掲示板は終了します。<br>
+              直近の障害発生からまだ時間が経っていないため、あと約 <b>${remainingMin}分間</b> は緊急掲示板が利用できます。（その後は全ての投稿が消去され終了します）<br>
               ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
             `;
           } else {
+            // 今まさにDOWNしている最中
             boardDesc.innerHTML = `
               現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
               ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
