@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,9 @@
       --accent-color: #38bdf8;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
@@ -66,6 +69,7 @@
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -89,12 +93,6 @@
       border-color: var(--accent-color);
     }
 
-    .btn.active {
-      background-color: var(--accent-color);
-      color: #ffffff;
-      border-color: var(--accent-color);
-    }
-
     .status-card {
       padding: 24px 20px;
       border-radius: 16px;
@@ -109,9 +107,23 @@
       transition: all var(--transition-speed) ease;
     }
 
-    .status-card.up { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; }
-    .status-card.degraded { background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: none; }
-    .status-card.down { background: linear-gradient(135deg, #ef4444, #dc2626); color: #ffffff; border: none; }
+    .status-card.up {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+    }
+
+    .status-card.degraded {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      border: none;
+    }
+
+    .status-card.down {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #ffffff;
+      border: none;
+    }
 
     .stats-grid {
       display: grid;
@@ -129,8 +141,18 @@
       text-align: center;
     }
 
-    .stat-label { font-size: 12px; color: var(--sub-text); font-weight: 600; margin-bottom: 6px; }
-    .stat-value { font-size: 22px; font-weight: 700; color: var(--text-color); }
+    .stat-label {
+      font-size: 12px;
+      color: var(--sub-text);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
 
     .chart-card {
       background-color: var(--card-bg);
@@ -150,10 +172,37 @@
       gap: 12px;
     }
 
-    .chart-title { font-weight: 700; font-size: 15px; color: var(--sub-text); }
-    .range-selector { display: flex; gap: 6px; flex-wrap: wrap; }
-    .range-btn { padding: 6px 12px; font-size: 12px; box-shadow: none; }
-    .chart-container { position: relative; height: 320px; width: 100%; }
+    .chart-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--sub-text);
+    }
+
+    .range-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    .minute-input {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      width: 65px;
+      text-align: center;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
 
     .emergency-board {
       background-color: var(--card-bg);
@@ -190,7 +239,8 @@
       margin-bottom: 20px;
     }
 
-    .board-input, .board-textarea {
+    .board-input,
+    .board-textarea {
       background-color: var(--bg-color);
       color: var(--text-color);
       border: 1px solid var(--border-color);
@@ -216,7 +266,9 @@
       transition: opacity 0.2s;
     }
 
-    .board-submit:hover { opacity: 0.9; }
+    .board-submit:hover {
+      opacity: 0.9;
+    }
 
     .message-list {
       display: flex;
@@ -241,17 +293,41 @@
       margin-bottom: 4px;
     }
 
-    .message-name { font-weight: bold; color: var(--text-color); }
-    .message-body { font-size: 14px; word-break: break-all; white-space: pre-wrap; }
+    .message-name {
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    .message-body {
+      font-size: 14px;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
 
     @media (max-width: 600px) {
-      .stats-grid { grid-template-columns: 1fr; gap: 10px; }
-      .stat-box { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
-      .stat-label { margin-bottom: 0; }
-      .chart-container { height: 250px; }
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .stat-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+      }
+
+      .stat-label {
+        margin-bottom: 0;
+      }
+
+      .chart-container {
+        height: 250px;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <div class="header">
@@ -260,6 +336,9 @@
       <span class="last-updated" id="lastUpdated">最終更新: 取得中...</span>
     </div>
     <div class="controls">
+      <button class="btn" id="scaleToggleBtn" title="グラフのスケール切替">
+        <span>スケール: 線形 (Linear)</span>
+      </button>
       <button class="btn" id="refreshBtn" title="最新データを取得">
         <span>更新</span>
       </button>
@@ -290,12 +369,10 @@
     <div class="chart-header">
       <span class="chart-title">応答時間推移 (kleismic.com)</span>
       <div class="range-selector">
-        <!-- 初期表示を1時間にするため、1時間のボタンに active を付与 -->
-        <button class="btn range-btn active" data-hours="1">1時間</button>
-        <button class="btn range-btn" data-hours="2">2時間</button>
-        <button class="btn range-btn" data-hours="4">4時間</button>
-        <button class="btn range-btn" data-hours="8">8時間</button>
-        <button class="btn range-btn" data-hours="12">12時間</button>
+        <input type="number" id="fromMinutes" class="minute-input" value="0" min="0" max="720">分前から
+        <input type="number" id="customMinutes" class="minute-input" value="60" min="1" max="720">分間表示
+        <span id="hourDisplay" style="font-size: 12px; color: var(--sub-text); margin-left: 4px;"></span>
+        <span style="font-size: 12px; color: var(--sub-text); margin-left: 4px;">最長 12時間前まで</span>
       </div>
     </div>
     <div class="chart-container">
@@ -309,7 +386,7 @@
       現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
       ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
     </div>
-    
+
     <div class="board-form">
       <input type="text" id="posterName" class="board-input" placeholder="お名前 (省略可)" maxlength="20">
       <textarea id="posterMessage" class="board-textarea" placeholder="いまどんな状況？メッセージを残そう..." maxlength="200"></textarea>
@@ -324,7 +401,7 @@
 
     let rawData = [];
     let boardMessages = [];
-    let currentHours = 1; // ★ 初期表示を1時間に設定
+    let isLogScale = false; // グラフのスケール（false: 線形, true: 対数）
 
     const themeToggleBtn = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme');
@@ -352,14 +429,21 @@
       if (window.myChart) updateDashboard();
     }
 
-    document.querySelectorAll('.range-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-        e.currentTarget.classList.add('active');
-        currentHours = parseInt(e.currentTarget.getAttribute('data-hours'), 10);
-        updateDashboard();
-      });
+    // スケール切替ボタンのイベント
+    const scaleToggleBtn = document.getElementById('scaleToggleBtn');
+    scaleToggleBtn.addEventListener('click', () => {
+      isLogScale = !isLogScale;
+      scaleToggleBtn.querySelector('span').textContent = isLogScale ? 'スケール: 対数 (Log)' : 'スケール: 線形 (Linear)';
+      updateDashboard();
     });
+
+    // 入力要素
+    const fromMinutesInput = document.getElementById('fromMinutes');
+    const customMinutesInput = document.getElementById('customMinutes');
+    const hourDisplay = document.getElementById('hourDisplay');
+
+    fromMinutesInput.addEventListener('input', () => updateDashboard());
+    customMinutesInput.addEventListener('input', () => updateDashboard());
 
     document.getElementById('refreshBtn').addEventListener('click', () => {
       document.getElementById('lastUpdated').textContent = '更新中...';
@@ -370,7 +454,7 @@
       try {
         const response = await fetch(GAS_API_URL + "?t=" + Date.now());
         const json = await response.json();
-        
+
         rawData = json.logs || [];
         boardMessages = json.messages || [];
         const isEmergency = json.isEmergency;
@@ -388,7 +472,7 @@
         const statusCard = document.getElementById("status-card");
         const emergencyBoard = document.getElementById("emergencyBoard");
         const boardDesc = document.getElementById("boardDesc");
-        
+
         if (latest.status === "UP") {
           statusCard.textContent = `正常稼働中 (応答時間: ${latest.responseTime}ms)`;
           statusCard.className = "status-card up";
@@ -402,14 +486,14 @@
 
         if (isEmergency) {
           emergencyBoard.classList.add("visible");
-          if (remainingMin > 0) {
-            boardDesc.innerHTML = `
-              直近の障害発生からまだ時間が経っていないため、あと約 <b>${remainingMin}分間</b> は緊急掲示板が利用できます。（その後は全ての投稿が消去され終了します）<br>
-              ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
-            `;
-          } else {
+          if (json.isNowDown) {
             boardDesc.innerHTML = `
               現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+              ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
+            `;
+          } else if (remainingMin > 0) {
+            boardDesc.innerHTML = `
+              先ほどの障害は復帰されましたが、あと約 <b>${remainingMin}分間</b> は緊急掲示板が残り、その後は全ての投稿が消去され終了します。<br>
               ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
             `;
           }
@@ -455,10 +539,10 @@
 
     function escapeHtml(str) {
       return str.replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     document.getElementById("postBtn").addEventListener('click', async () => {
@@ -502,8 +586,22 @@
     function updateDashboard() {
       if (!rawData || rawData.length === 0) return;
 
-      const countToSlice = currentHours * 60;
-      const displayData = rawData.slice(-countToSlice);
+      let fromMin = parseInt(fromMinutesInput.value, 10);
+      let durationMin = parseInt(customMinutesInput.value, 10);
+
+      if (isNaN(fromMin) || fromMin < 0) fromMin = 0;
+      if (isNaN(durationMin) || durationMin < 1) durationMin = 1;
+
+      // 配列の末尾（最新）から何分前を起点・終点にするかのスライス計算
+      // 例: fromMin = 0, durationMin = 60 なら、最新から60分間
+      // fromMin = 60, durationMin = 60 なら、60分前から120分前まで
+      const endIndex = rawData.length - fromMin;
+      const startIndex = Math.max(0, endIndex - durationMin);
+      const displayData = rawData.slice(startIndex, Math.max(0, endIndex));
+
+      // hourDisplay テキストの更新
+      const totalHours = (durationMin / 60).toFixed(1);
+      hourDisplay.textContent = `(約 ${totalHours}時間分)`;
 
       const totalCount = displayData.length;
       const upCount = displayData.filter(d => d.status !== "DOWN").length;
@@ -524,7 +622,7 @@
         const d = new Date(item.timestamp);
         return isNaN(d.getTime()) ? item.timestamp : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       });
-      
+
       const responseTimes = displayData.map(item => item.status === "DOWN" ? 0 : item.responseTime);
       const statuses = displayData.map(item => item.status);
 
@@ -586,7 +684,7 @@
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: function(context) {
+                label: function (context) {
                   const idx = context.dataIndex;
                   const status = statuses[idx];
                   if (status === 'DOWN') return ' 状態: DOWN (応答なし)';
@@ -599,8 +697,9 @@
           scales: {
             x: { ticks: { color: textColor, maxTicksLimit: 10 }, grid: { display: false } },
             y: {
-              beginAtZero: true,
-              title: { display: true, text: 'ms', color: textColor },
+              type: isLogScale ? 'logarithmic' : 'linear', // 対数・線形の切り替え
+              beginAtZero: !isLogScale, // 対数のときは0始まりにできないため自動調整
+              title: { display: true, text: isLogScale ? 'ms (Log)' : 'ms', color: textColor },
               ticks: { color: textColor },
               grid: { color: gridColor }
             }
@@ -613,4 +712,5 @@
     setInterval(fetchStatus, 60000);
   </script>
 </body>
+
 </html>
