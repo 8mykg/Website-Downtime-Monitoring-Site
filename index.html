@@ -367,7 +367,7 @@
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title">応答時間推移 (kleismic.com)</span>
+      <span class="chart-title">応答時間推移 (<a href="https://superultrasmallminimum.vercel.app" target="_blank" rel="noopener noreferrer">https://superultrasmallminimum.vercel.app</a>)</span>
       <div class="range-selector">
         <input type="number" id="fromMinutes" class="minute-input" value="0" min="0" max="720">分前から
         <input type="number" id="customMinutes" class="minute-input" value="60" min="1" max="720">分間表示
@@ -383,7 +383,7 @@
   <div id="emergencyBoard" class="emergency-board">
     <div class="board-title">緊急避難所掲示板</div>
     <div id="boardDesc" class="board-desc">
-      現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+      現在susmがダウンしているため、一時的なチャットを開設しています。<br>
       ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
     </div>
 
@@ -488,7 +488,7 @@
           emergencyBoard.classList.add("visible");
           if (json.isNowDown) {
             boardDesc.innerHTML = `
-              現在kleismicがダウンしているため、一時的なチャットを開設しています。<br>
+              現在susmがダウンしているため、一時的なチャットを開設しています。<br>
               ※投稿の検閲はされません。他の人や自分の投稿の削除は掲示板終了時のみ行われます。
             `;
           } else if (remainingMin > 0) {
