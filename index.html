@@ -204,6 +204,22 @@
       width: 100%;
     }
 
+    .link-button {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .emergency-board {
       background-color: var(--card-bg);
       border: 2px dashed #ef4444;
@@ -367,7 +383,10 @@
 
   <div class="chart-card">
     <div class="chart-header">
-      <span class="chart-title">応答時間推移 (<a href="https://superultrasmallminimum.vercel.app" target="_blank" rel="noopener noreferrer">https://superultrasmallminimum.vercel.app</a>)</span>
+      <span class="chart-title">応答時間推移</span>
+      <button class="link-button" onclick="window.open('superultrasmallminimum.vercel.app', '_blank')">
+        <span>superultrasmallminimum.vercel.app</span>
+      </button>
       <div class="range-selector">
         <input type="number" id="fromMinutes" class="minute-input" value="0" min="0" max="720">分前から
         <input type="number" id="customMinutes" class="minute-input" value="60" min="1" max="720">分間表示
