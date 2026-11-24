@@ -5,3 +5,4 @@
 
 vercelに移植しました、Pagesにはもうないよ
 https://website-downtime-monitoring-site.vercel.app/
+2026/11/24:kleismicのサービス終了によりダウンの監視先を移動中です
